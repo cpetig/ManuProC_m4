@@ -144,7 +144,7 @@ AC_SUBST(MICO_GTKLIBS)
 
 AC_DEFUN([PETIG_CHECK_ECPG],
 [
-if test "x$ECPG_INCLUDES" == "x"
+if test -z "$ECPG_INCLUDES"
 then
   AC_MSG_CHECKING(for PostgreSQL ECPG)
   AC_ARG_WITH(postgresdir,
@@ -226,7 +226,7 @@ dnl MPC_CHECK_LIB(lib name,dir name,define name,alt.lib+dir name,dep1,dep2,dir)
 AC_DEFUN([MPC_CHECK_LIB],
 [
 dnl only if not already checked
-if test "x$$3_INCLUDES" == "x" 
+if test -z "$$3_INCLUDES"
 then
   _mpc_dir="$7"
   if test -z "$_mpc_dir" ; then _mpc_dir=.. ; fi
@@ -276,33 +276,33 @@ then
     then mytmp="$ac_default_prefix"
     else mytmp="$prefix"
     fi
-    if test "(" "x$4" != "x" -a -d $mytmp/include/$4 ")" -a -r $mytmp/lib/lib$4.a
-    then
-      $3_INCLUDES="-I$mytmp/include/$4"
-      AC_MSG_RESULT($$3_INCLUDES)
-      $3_LIBS="-L$mytmp/lib -l$4"
-      $3_LDFLAGS=""
-    else 
-      AC_MSG_ERROR([not found])
-    fi
+    ifelse($4,,AC_MSG_ERROR([not found]),[
+      if test -d "$mytmp/include/$4" -a -r "$mytmp/lib/lib$4.a"
+      then
+        $3_INCLUDES="-I$mytmp/include/$4"
+        AC_MSG_RESULT($$3_INCLUDES)
+        $3_LIBS="-L$mytmp/lib -l$4"
+        $3_LDFLAGS=""
+      else 
+        AC_MSG_ERROR([not found])
+      fi
+    ])
   fi
   $3_NODB_LIBS="$$3_LIBS"
 
   dnl dependancies
-  if test "x$5" != "x"
-  then
+  ifelse($5,,,[
     $3_INCLUDES="$$5_INCLUDES $$3_INCLUDES"
     $3_LIBS="$$3_LIBS $$5_LIBS"
     $3_NODB_LIBS="$$3_NODB_LIBS $$5_NODB_LIBS"
     $3_LDFLAGS="$$3_LDFLAGS $$5_LDFLAGS" 
-  fi
-  if test "x$6" != "x"
-  then
+  ])
+  ifelse($6,,,[
     $3_INCLUDES="$$6_INCLUDES $$3_INCLUDES"
     $3_LIBS="$$3_LIBS $$6_LIBS"
     $3_NODB_LIBS="$$3_NODB_LIBS $$6_NODB_LIBS"
     $3_LDFLAGS="$$3_LDFLAGS $$6_LDFLAGS"
-  fi
+  ])
 
   $3_CFLAGS=$$3_INCLUDES
   AC_SUBST($3_INCLUDES)
@@ -315,7 +315,7 @@ fi
 
 AC_DEFUN([PETIG_CHECK_GTKMM],
 [
-if test "x$GTKMM_CFLAGS" == "x"
+if test -z "$GTKMM_CFLAGS"
 then
   m4_ifdef([AM_PATH_GTKMM],[AM_PATH_GTKMM(1.2.0,,AC_MSG_ERROR(Cannot find Gtk-- Version 1.2.x))],[])
 fi
@@ -393,7 +393,7 @@ AC_COMPILE_IFELSE(
 		])],[MPC_SQLITE=1],[])
 CXXFLAGS="$old_cxxflags"
 
-if test "x$MPC_SQLITE" = x
+if test -z "$MPC_SQLITE"
 then
 	AC_MSG_RESULT("PostgreSQL") 
 	PETIG_CHECK_ECPG

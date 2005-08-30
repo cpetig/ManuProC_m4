@@ -1,4 +1,4 @@
-dnl $Id: petig.m4,v 1.77 2005/06/17 16:03:22 christof Exp $
+dnl $Id: petig.m4,v 1.78 2005/06/29 09:18:37 christof Exp $
 
 dnl Configure paths for some libraries
 dnl derived from kde's acinclude.m4
@@ -444,3 +444,5 @@ AC_DEFUN([PETIG_CHECK_BARCOLIB],
 [
 MPC_CHECK_LIB(barco,barcolib,BARCOLIB,,,,[$1]) 
 ])
+
+AC_DEFUN([MPC_CHECK_COMMONXX], [PETIG_CHECK_COMMONXX([$1])])

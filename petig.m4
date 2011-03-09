@@ -109,35 +109,41 @@ then
     $3_INCLUDES="-I$TEMP"
     $3_LDFLAGS=""
     $3_LIBS="$TEMP/lib$1.a"
-    AC_MSG_RESULT($$3_INCLUDES)
+    $3_DIR="$TEMP"
+    AC_MSG_RESULT($$3_DIR)
   elif test -r "$_mpc_dir/$2/src/lib$1.a"
   then 
     TEMP=`cd $_mpc_dir/$2/src ; pwd` 
     $3_INCLUDES="-I$TEMP"
     $3_LDFLAGS=""
     $3_LIBS="$TEMP/lib$1.a"
-    AC_MSG_RESULT($$3_INCLUDES)
-  elif test -r "$_mpc_dir/$2/src/.libs/lib$1.a"
+    $3_DIR="$TEMP"
+    AC_MSG_RESULT($$3_DIR)
+  dnl libtool library
+  elif test -r "$_mpc_dir/$2/src/lib$1.la"
   then 
     TEMP=`cd $_mpc_dir/$2/src ; pwd` 
     $3_INCLUDES="-I$TEMP"
-    $3_LDFLAGS=""
-    $3_LIBS="$TEMP/.libs/lib$1.a"
-    AC_MSG_RESULT($$3_INCLUDES)
+    $3_LDFLAGS="-L$TEMP"
+    $3_LIBS="-l$1"
+    $3_DIR="$TEMP"
+    AC_MSG_RESULT($$3_DIR)
   elif test -n "$4" -a -r "$_mpc_dir/$4/lib$4.a" -o -r "$_mpc_dir/$4/lib$4.la"
   then 
     TEMP=`cd $_mpc_dir/$4 ; pwd` 
     $3_INCLUDES="-I$TEMP"
     $3_LDFLAGS="-L$TEMP"
     $3_LIBS="-l$4"
-    AC_MSG_RESULT($$3_INCLUDES)
+    $3_DIR="$TEMP"
+    AC_MSG_RESULT($$3_DIR)
   elif test -n "$4" -a -r "$_mpc_dir/$4/src/lib$4.a" -o -r "$_mpc_dir/$4/src/lib$4.la"
   then 
     TEMP=`cd $_mpc_dir/$4/src ; pwd` 
     $3_INCLUDES="-I$TEMP"
     $3_LDFLAGS="-L$TEMP"
     $3_LIBS="-l$4"
-    AC_MSG_RESULT($$3_INCLUDES)
+    $3_DIR="$TEMP"
+    AC_MSG_RESULT($$3_DIR)
   else
     if test "x$prefix" = "xNONE" 
     then mytmp="$ac_default_prefix"
@@ -147,9 +153,10 @@ then
       if test -d "$mytmp/include/$4" -a -r "$mytmp/lib/lib$4.a"
       then
         $3_INCLUDES="-I$mytmp/include/$4"
-        AC_MSG_RESULT($$3_INCLUDES)
-        $3_LIBS="-L$mytmp/lib -l$4"
-        $3_LDFLAGS=""
+        $3_LDFLAGS="-L$mytmp/lib"
+        $3_LIBS="-l$4"
+	$3_DIR="$mytmp"
+        AC_MSG_RESULT($$3_DIR)
       else 
         AC_MSG_ERROR([not found])
       fi
@@ -211,6 +218,8 @@ AC_DEFUN([MPC_CHECK_BASE_SIGC],
 AC_DEFUN([PETIG_CHECK_COMMONXX],
 [
  MPC_CHECK_LIB(common++,c++,COMMONXX,,MPC_BASE,,[$1])
+ dnl commonxx needs to override dependencies (for ManuProCConfig.h)
+ COMMONXX_INCLUDES="-I$COMMONXX_DIR $COMMONXX_INCLUDES"
 ])
 
 AC_DEFUN([MPC_CHECK_BASE],
@@ -292,11 +301,8 @@ AC_DEFUN([PETIG_CHECK_MPC_WIDGETS],[ MPC_CHECK_WIDGETS([$1])])
 AC_DEFUN([MPC_CHECK_KOMPONENTEN2],
 [
 MPC_CHECK_LIB(Komponenten,Komponenten2,KOMPONENTEN2,Komponenten,COMMONXX,MPC_WIDGETS,[$1])
-MPC_CHECK_SIGC_MATCH
+dnl MPC_CHECK_SIGC_MATCH
 ])
 
-AC_DEFUN([PETIG_CHECK_KOMPONENTEN2],
-[ MPC_CHECK_KOMPONENTEN2([$1])
-])
-
+AC_DEFUN([PETIG_CHECK_KOMPONENTEN2],[ MPC_CHECK_KOMPONENTEN2([$1])])
 AC_DEFUN([MPC_CHECK_COMMONXX], [PETIG_CHECK_COMMONXX([$1])])

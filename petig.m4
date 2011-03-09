@@ -117,14 +117,21 @@ then
     $3_LDFLAGS=""
     $3_LIBS="$TEMP/lib$1.a"
     AC_MSG_RESULT($$3_INCLUDES)
-  elif test -r "$_mpc_dir/$4/lib$4.a" -o -r "$_mpc_dir/$4/lib$4.la"
+  elif test -r "$_mpc_dir/$2/src/.libs/lib$1.a"
+  then 
+    TEMP=`cd $_mpc_dir/$2/src ; pwd` 
+    $3_INCLUDES="-I$TEMP"
+    $3_LDFLAGS=""
+    $3_LIBS="$TEMP/.libs/lib$1.a"
+    AC_MSG_RESULT($$3_INCLUDES)
+  elif test -n "$4" -a -r "$_mpc_dir/$4/lib$4.a" -o -r "$_mpc_dir/$4/lib$4.la"
   then 
     TEMP=`cd $_mpc_dir/$4 ; pwd` 
     $3_INCLUDES="-I$TEMP"
     $3_LDFLAGS="-L$TEMP"
     $3_LIBS="-l$4"
     AC_MSG_RESULT($$3_INCLUDES)
-  elif test -r "$_mpc_dir/$4/src/lib$4.a" -o -r "$_mpc_dir/$4/src/lib$4.la"
+  elif test -n "$4" -a -r "$_mpc_dir/$4/src/lib$4.a" -o -r "$_mpc_dir/$4/src/lib$4.la"
   then 
     TEMP=`cd $_mpc_dir/$4/src ; pwd` 
     $3_INCLUDES="-I$TEMP"
@@ -204,11 +211,11 @@ AC_DEFUN([MPC_CHECK_BASE_SIGC],
 AC_DEFUN([PETIG_CHECK_COMMONXX],
 [
  MPC_CHECK_LIB(common++,c++,COMMONXX,,BASE,,[$1])
-]
+])
 
 AC_DEFUN([MPC_CHECK_BASE],
 [
-MPC_CHECK_LIB(ManuProC_Base,,MPC_BASE,,,,[$1])
+MPC_CHECK_LIB(ManuProC_Base,ManuProC_Base,MPC_BASE,,,,[$1])
 # check which sigc was used to configure ManuProC_Base
 AC_MSG_CHECKING(which sigc++ was used to configure ManuProC_Base)
 MPC_CHECK_BASE_SIGC(0x220)
@@ -267,12 +274,12 @@ fi
 
 AC_DEFUN([PETIG_CHECK_COMMONGTK2],
 [
-MPC_CHECK_LIB(GtkmmAddons,gtk2,COMMONGTK2,,GTKMM2,,[$1])
+MPC_CHECK_LIB(GtkmmAddons,GtkmmAddons,COMMONGTK2,gtk2,GTKMM2,,[$1])
 ])
 
 AC_DEFUN([MPC_CHECK_WIDGETS],
 [
-MPC_CHECK_LIB(ManuProC_Widgets,,KOMPONENTEN2,ManuProC_Widgets,BASE,COMMONGTK2,[$1])
+MPC_CHECK_LIB(ManuProC_Widgets,ManuProC_Widgets,WIDGETS,,BASE,COMMONGTK2,[$1])
 MPC_CHECK_SIGC_MATCH
 ])
 

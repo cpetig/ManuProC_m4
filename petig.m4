@@ -1,4 +1,4 @@
-dnl $Id: petig.m4,v 1.79 2005/08/30 10:15:41 christof Exp $
+dnl $Id: petig.m4,v 1.79 2005/08/30 10:15:41 christof test Exp $
 
 dnl Configure paths for some libraries
 

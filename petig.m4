@@ -2,83 +2,25 @@ dnl $Id: petig.m4,v 1.79 2005/08/30 10:15:41 christof test Exp $
 
 dnl Configure paths for some libraries
 
-AC_DEFUN([PETIG_CHECK_ECPG],
+AC_DEFUN([MPC_CHECK_DB],
 [
-if test -z "$ECPG_INCLUDES"
-then
-  AC_MSG_CHECKING(for PostgreSQL ECPG)
-  AC_ARG_WITH(postgresdir,
-    [  --with-postgresdir=postgresdir  where PostgreSQL is installed ],
-    petig_postgresdir=$withval,
-    [petig_postgresdir=`which ecpg | sed s+/bin/ecpg++`
-     if test ! -x "$ECPG" -a -x /usr/lib/postgresql/bin/ecpg
-     then 
-        ECPG=/usr/lib/postgresql/bin/ecpg
-     fi
-    ]
-  )
-  ECPG="$petig_postgresdir/bin/ecpg"
-  if test ! -x "$ECPG" ; then
-     AC_MSG_WARN([ecpg not found ($ECPG), please specify --with-postgresdir=PATH if needed])
-     ECPG_LIBS=""
-     ECPG_INCLUDES=""
-     ECPG_LDFLAGS=""
-     dnl fake it
-     ECPG="/bin/touch --" 
-  else     
-    AC_MSG_RESULT($ECPG)
-    
-    AC_MSG_CHECKING(for ECPG include files)
-    ECPG_PATH=`$ECPG -v 2>&1 | fgrep -v 'ecpg - ' | fgrep -v 'ecpg, the' | fgrep -v 'search starts here:' | fgrep -v 'nd of search list'`
-    ECPG_PATH_OK=0
-    for i in $ECPG_PATH
-    do
-      if test -r $i/ecpgerrno.h ; then ECPG_PATH_OK=1 ; fi
-      omit=0
-dnl omit these standard paths even though ecpg mentions them
-      if test "$i" = "/usr/include" ; then omit=1
-      elif test "$i" = "/usr/local/include" ; then omit=1
-      fi
-      if test $omit -eq 0
-      then 
-        if (echo $i | fgrep -q include )
-        then
-          LDIR=`echo $i | sed s+/include+/lib+`
-          if test -r $LDIR/libecpg.so
-          then
-             ECPG_LDFLAGS="$ECPG_LDFLAGS -L$LDIR"
-          elif test -r $LDIR/lib/libecpg.so
-          then # this strange path is right for debian
-             ECPG_LDFLAGS="$ECPG_LDFLAGS -L$LDIR/lib"
-          fi
-        fi
-        ECPG_INCLUDES="$ECPG_INCLUDES -I$i"
-      fi
-    done
-    if test $ECPG_PATH_OK = 0
-    then
-      AC_MSG_ERROR([No ecpgerrno.h found. Please report. ($ECPG_PATH)])
-    else
-      AC_MSG_RESULT($ECPG_INCLUDES)
-    fi
-    ECPG_LIBS='-lecpg -lpq -lcrypt'
-    AC_CHECK_LIB(pgtypes,PGTYPESnumeric_add,[ECPG_LIBS="-lecpg -lpgtypes -lpq -lcrypt"])
-  fi
+  AC_MSG_CHECKING(for PostgreSQL)
+  MPC_PG_LIBS='-lpq'
+  AC_MSG_RESULT($MPC_PG_LIBS)
+  AC_CHECK_LIB(pgtypes,PGTYPESnumeric_add,[MPC_PG_LIBS="-lpgtypes -lpq"])
+  AC_SUBST(MPC_PG_LIBS)
+  MPC_PG_CFLAGS='-I/usr/include/postgresql'
+  AC_SUBST(MPC_PG_CFLAGS)
   
-  AC_SUBST(ECPG)
-  AC_SUBST(ECPG_INCLUDES)
-  ECPG_CFLAGS="$ECPG_INCLUDES"
-  AC_SUBST(ECPG_CFLAGS)
-  AC_SUBST(ECPG_LDFLAGS)
-  AC_SUBST(ECPG_LIBS)
-  ECPG_NODB_LIBS=""
-  AC_SUBST(ECPG_NODB_LIBS)
-fi
-])
+  AC_MSG_CHECKING(for SQLite3)
+  MPC_SQLITE_LIBS='-lsqlite3'
+  AC_MSG_RESULT($MPC_SQLITE_LIBS)
+  AC_SUBST(MPC_SQLITE_LIBS)
 
-dnl this name not that consistent
-AC_DEFUN([PETIG_CHECK_POSTGRES],
-[ PETIG_CHECK_ECPG
+  MPC_DB_LIBS="$MPC_PG_LIBS $MPC_SQLITE_LIBS"
+  AC_SUBST(MPC_DB_LIBS)
+  MPC_DB_CFLAGS="$MPC_PG_CFLAGS"
+  AC_SUBST(MPC_DB_CFLAGS)
 ])
 
 dnl MPC_CHECK_LIB(lib name,dir name,define name,alt.lib+dir name,dep1,dep2,dir)
@@ -248,10 +190,10 @@ MPC_BASE_INCLUDES="$MPC_BASE_INCLUDES $SIGC_CFLAGS"
 MPC_BASE_LIBS="$MPC_BASE_LIBS $SIGC_LIBS"
 
 AC_MSG_CHECKING(setup for PostgreSQL and SQLite)
-PETIG_CHECK_ECPG
-MPC_BASE_LDFLAGS="$MPC_BASE_LDFLAGS $ECPG_LDFLAGS -lsqlite3"
-MPC_BASE_INCLUDES="$MPC_BASE_INCLUDES $ECPG_INCLUDES"
-MPC_BASE_LIBS="$MPC_BASE_LIBS $ECPG_LIBS"
+MPC_CHECK_DB
+MPC_BASE_LDFLAGS="$MPC_BASE_LDFLAGS"
+MPC_BASE_INCLUDES="$MPC_BASE_INCLUDES $MPC_DB_CFLAGS"
+MPC_BASE_LIBS="$MPC_BASE_LIBS $MPC_DB_LIBS"
 
 ])
 
